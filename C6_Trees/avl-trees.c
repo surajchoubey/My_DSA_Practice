@@ -52,6 +52,7 @@ int getBalance(struct AVLTreeNode *N)
 // SINGLE ROTATIONS
 
 // Left Left Rotation
+// Make left child as the root child
 struct AVLTreeNode *leftRotate(struct AVLTreeNode *X) {
 
 	struct AVLTreeNode *W = X -> right;
@@ -65,6 +66,7 @@ struct AVLTreeNode *leftRotate(struct AVLTreeNode *X) {
 }
 
 // Right Right Rotation
+// Make right child as the root child
 struct AVLTreeNode *rightRotate(struct AVLTreeNode *X) {
 
 	struct AVLTreeNode *W = X -> left;
