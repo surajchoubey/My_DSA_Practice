@@ -166,6 +166,36 @@ struct BSTNode *find_memory_block(struct BSTNode *root, int element) {
 	return NULL;
 }
 
+/*
+    TreeNode* deleteNode(TreeNode* root, int key) {
+        
+        if(root) {
+            if(key < root -> val) {
+                root -> left = deleteNode(root -> left, key);
+            } else if(key > root -> val) {
+                root -> right = deleteNode(root -> right, key);
+            } else {
+                
+                // No child condition
+                if(root -> left == NULL && root -> right == NULL) return NULL;
+                
+                // One child condition replace the node with its child
+                if(root -> left == NULL || root -> right == NULL) return root -> left ? root -> left : root -> right;
+                
+                // Two child condition
+                TreeNode *temp = root -> left;
+                while(temp -> right != NULL)  temp = temp -> right; 
+                // closely look here: go left once and then right right right to store its precedessor
+                // store the predecessor in temp and root -> val = root -> predecessor -> val
+                // delete the predecessor node as it has no child
+                root -> val = temp -> val;
+                root -> left = deleteNode(root -> left, temp -> val);
+            }
+        }
+        return root;
+    }
+*/
+
 
 void deleteNode(struct BSTNode **root, int element) {
 
@@ -177,8 +207,10 @@ void deleteNode(struct BSTNode **root, int element) {
 		printf("Element not found\n");
 		return;
 	} else if(toDelete -> left && toDelete -> right) {
+
 		toDelete -> data = findMax(toDelete -> left);
 		deleteNode(&(toDelete -> left), toDelete -> data);
+
 	} else if (toDelete -> left || toDelete -> right) {
 
 		Temp = toDelete;
@@ -189,6 +221,7 @@ void deleteNode(struct BSTNode **root, int element) {
 			toDelete -> data = toDelete -> right -> data;
 			deleteNode(&(toDelete -> right), toDelete -> data);
 		}
+		
 	} else {
 
 		if(Temp) { Temp -> left = NULL; Temp -> right = NULL; free(toDelete); }

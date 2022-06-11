@@ -1,220 +1,160 @@
-#include<stdio.h>
-#include<stdlib.h>
+// A C++ program to demonstrate common Binary Heap Operations
+#include<iostream>
+#include<climits>
+using namespace std;
 
-void swap(int *x, int *y) {
+// Prototype of a utility function to swap two integers
+void swap(int *x, int *y);
+
+// A class for Min Heap
+class MinHeap
+{
+	int *harr; // pointer to array of elements in heap
+	int capacity; // maximum possible size of min heap
+	int heap_size; // Current number of elements in min heap
+public:
+	// Constructor
+	MinHeap(int capacity);
+
+	// to heapify a subtree with the root at given index
+	void MinHeapify(int );
+
+	int parent(int i) { return (i-1)/2; }
+
+	// to get index of left child of node at index i
+	int left(int i) { return (2*i + 1); }
+
+	// to get index of right child of node at index i
+	int right(int i) { return (2*i + 2); }
+
+	// to extract the root which is the minimum element
+	int extractMin();
+
+	// Decreases key value of key at index i to new_val
+	void decreaseKey(int i, int new_val);
+
+	// Returns the minimum key (key at root) from min heap
+	int getMin() { return harr[0]; }
+
+	// Deletes a key stored at index i
+	void deleteKey(int i);
+
+	// Inserts a new key 'k'
+	void insertKey(int k);
+};
+
+// Constructor: Builds a heap from a given array a[] of given size
+MinHeap::MinHeap(int cap)
+{
+	heap_size = 0;
+	capacity = cap;
+	harr = new int[cap];
+}
+
+// Inserts a new key 'k'
+void MinHeap::insertKey(int k)
+{
+	if (heap_size == capacity)
+	{
+		cout << "\nOverflow: Could not insertKey\n";
+		return;
+	}
+
+	// First insert the new key at the end
+	heap_size++;
+	int i = heap_size - 1;
+	harr[i] = k;
+
+	// Fix the min heap property if it is violated
+	while (i != 0 && harr[parent(i)] > harr[i])
+	{
+		swap(&harr[i], &harr[parent(i)]);
+		i = parent(i);
+	}
+}
+
+// Decreases value of key at index 'i' to new_val. It is assumed that
+// new_val is smaller than harr[i].
+void MinHeap::decreaseKey(int i, int new_val)
+{
+	harr[i] = new_val;
+	while (i != 0 && harr[parent(i)] > harr[i])
+	{
+	swap(&harr[i], &harr[parent(i)]);
+	i = parent(i);
+	}
+}
+
+// Method to remove minimum element (or root) from min heap
+int MinHeap::extractMin()
+{
+	if (heap_size <= 0)
+		return INT_MAX;
+	if (heap_size == 1)
+	{
+		heap_size--;
+		return harr[0];
+	}
+
+	// Store the minimum value, and remove it from heap
+	int root = harr[0];
+	harr[0] = harr[heap_size-1];
+	heap_size--;
+	MinHeapify(0);
+
+	return root;
+}
+
+
+// This function deletes key at index i. It first reduced value to minus
+// infinite, then calls extractMin()
+void MinHeap::deleteKey(int i)
+{
+	decreaseKey(i, INT_MIN);
+	extractMin();
+}
+
+// A recursive method to heapify a subtree with the root at given index
+// This method assumes that the subtrees are already heapified
+void MinHeap::MinHeapify(int i)
+{
+	int l = left(i);
+	int r = right(i);
+	int smallest = i;
+	if (l < heap_size && harr[l] < harr[i])
+		smallest = l;
+	if (r < heap_size && harr[r] < harr[smallest])
+		smallest = r;
+	if (smallest != i)
+	{
+		swap(&harr[i], &harr[smallest]);
+		MinHeapify(smallest);
+	}
+}
+
+// A utility function to swap two elements
+void swap(int *x, int *y)
+{
 	int temp = *x;
 	*x = *y;
 	*y = temp;
 }
 
-struct Heap {
-	int *array;
-	int count; // Number of elements in Heap
-	int capacity; // Size of the heap
-	// int heap_type; // Min heap or max heap
-};
-
-// create a node
-struct Heap *createHeap(int capacity) {// , int heap_type = 0) {
-
-	struct Heap *h = (struct Heap *)malloc(sizeof(struct Heap));
-
-	if(h == NULL) {
-		printf("Memory Error");
-		return NULL;
-	}
-
-	// h -> heap_type = heap_type;
-	h -> count = 0;
-	h -> capacity = capacity;
-	h -> array = (int *) malloc(sizeof(int) * h -> capacity);
-
-	if (h -> array == NULL) {
-		printf("Memory Error");
-		return NULL;
-	}
-
-	return h;
-}
-
-// parent of a node
-int parent(struct Heap *h, int i) {
-
-	if(i <= 0 || h -> count) {
-		return -1;
-	}
-	return (i - 1)/2;
-
-}
-
-int leftChild(struct Heap *h, int i) {
-
-	int left = 2*i+1; // carefully see here
-	if(left >= h -> count) {
-		return -1;
-	}
-	return left;
-}
-
-int rightChild(struct Heap *h, int i) {
-
-	int left = 2*i+2; // carefully see here
-	if(left >= h -> count) {
-		return -1;
-	}
-	return left;
-}
-
-// for max heap max element is always at the root
-int getMaximum(struct Heap *h) {
-
-	if(h -> count == 0) {
-		return -1;
-	}
-	return h -> array[0];
-}
-
-// heapifying an element at location i
-void percolateDown(struct Heap *h, int i) {
-
-	int left, right, max = i;
-	left = leftChild(h,i);
-	right = rightChild(h,i);
-
-	if (left != -1 && h->array[left] > h -> array[i]) {
-		max = left;
-	}
-
-	if (right != -1 && h->array[right] > h -> array[i]) {
-		max = right;
-	}
-
-	if(max != i) {
-		swap(&h -> array[max], &h -> array[i]);
-		percolateDown(h, max);
-	}
-
-}
-
-// deleting an element
-// deleting an element in heap is only done at the top
-int deleteMax(struct Heap *h) {
-
-	if (h -> count == 0) {
-		return -1;
-	}
-
-	int data = h -> array[0];
-	h -> array[0] = h -> array[h -> count - 1];
-	h -> count--; // reducing the heap size
-
-	percolateDown(h, 0);
-
-	return data;
-}
-
-// resize the heap
-void resizeHeap(struct Heap *h) {
-	int i;
-
-	int *array_old = h -> array;
-	h -> array = (int *)malloc(sizeof(int) * h -> capacity * 2);
-
-	if(h -> array == NULL) {
-		printf("Memory Error!\n");
-		return;
-	}
-
-	for(i = 0; i < h -> capacity; i++) {
-		h -> array[i] = array_old[i];
-	}
-
-	h -> capacity *= 2;
-	free(array_old);
-}
-
-
-// inserting an element into the heap; the function resizeHeap from above is required to execute the insert function
-int insert(struct Heap *h, int data) {
-	int i;
-	if(h -> count == h -> capacity)
-		resizeHeap(h);
-
-	h -> count++;
-
-	i = h -> count - 1;
-
-	while(i >= 0 && data > h -> array[(i-1)/2]) {
-		h -> array[i] = h -> array[(i-1)/2];
-		i = (i - 1)/2;
-	}
-
-	h -> array[i] = data;
-}
-
-// destroying the heap
-void destroyHeap(struct Heap *h) {
-
-	if(h == NULL) {
-		return;
-	}
-	free(h -> array);
-	free(h);
-	h = NULL;
-}
-
-// heapifying the array
-void buildHeap(struct Heap *h, int A[], int n) {
-
-	int i;
-
-	if(h = NULL) {
-		return;
-	}
-
-	while(n > h -> capacity)
-		resizeHeap(h);
-
-	for(i = 0; i < n; i++) {
-		h -> array[i] = A[i];
-	}
-
-	h -> count = n;
-
-	for(i = (n-1)/2; i >= 0; i--) {
-		percolateDown(h, i);
-	}
-
-}
-
-// HEAPSORT
-void Heapsort(int A[], int n) {
-
-	struct Heap *h = createHeap(n);
-
-	int old_size, i, temp;
-
-	buildHeap(h, A, n);
-
-	old_size = h -> count;
-
-	for(i = n-1; i > 0; i--) {
-		// h -> array[0] is the largest element
-
-		temp = h -> array[0];
-		h -> array[0] = h -> array[h -> count - 1];
-		h -> array[0] = temp;
-		h -> count--;
-
-		percolateDown(h, 0);
-	}
-
-	h -> count = old_size;
-}
-
-int main() {
-
-	// test everything out here
-
+// Driver program to test above functions
+int main()
+{
+	MinHeap h(11);
+	h.insertKey(3);
+	h.insertKey(2);
+	h.deleteKey(1);
+	h.insertKey(15);
+	h.insertKey(5);
+	h.insertKey(4);
+	h.insertKey(45);
+	cout << h.extractMin() << " ";
+	cout << h.getMin() << " ";
+	h.decreaseKey(2, 1);
+	cout << h.getMin();
+	cout << endl;
 	return 0;
 }
