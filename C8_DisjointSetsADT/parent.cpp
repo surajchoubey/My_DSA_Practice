@@ -83,7 +83,7 @@ int main()
 	obj.Union(4, 2);
 	obj.Union(3, 1);
 
-	if (obj.find(4) == obj.find(0))
+	if (obj.find(0) == obj.find(4))
 		cout << "Yes\n";
 	else
 		cout << "No\n";

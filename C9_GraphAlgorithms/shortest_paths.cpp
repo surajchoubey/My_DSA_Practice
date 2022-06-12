@@ -11,18 +11,26 @@
 #include <climits>
 using namespace std;
 
+// UTILITY FUNCTIONS
 void printvector(vector<int> traversal);
 void printpath(vector<int> &path);
 
+// CONNECT GRAPH NODES
 void DG_connect(int start, int end, int V, vector<int> adj[]);
 void UG_connect(int start, int end, int V, vector<int> adj[]);
 
+// BFS AND DFS
 vector<int> BFS(int start, vector<int> adj[]);
 vector<int> DFS(int start, vector<int> adj[]);
 
+// SHORTEST PATH ALGORITHMS
 void unweight_shortest_path(vector<int> adj[], int start, int V);
 void Djikstras(vector <int> adj[], int start, int V, vector<vector<int>> &weight);
 void BellmanFordAlgorithm(vector<int> adj[], int start, int V, vector<vector<int>> &weight);
+
+// MINIMUM SPANNING TREE ALGORITHMS
+void Prims(vector <int> adj[], int start, int V, vector<vector<int>> &weight);
+void Kruskals(vector <int> adj[], int V, vector<vector<int>> &weight);
 
 int main() {
 
@@ -36,21 +44,27 @@ int main() {
 
 	DG_connect(0,1,5,graph);
 	weight[0][1] = 4;
+	weight[1][0] = 4;
 	
 	DG_connect(0,2,5,graph);
 	weight[0][2] = 1;
+	weight[2][0] = 1;
 	
 	DG_connect(2,1,5,graph);
 	weight[2][1] = 2;
+	weight[1][2] = 2;
 	
 	DG_connect(2,3,5,graph);
 	weight[2][3] = 4;
+	weight[3][2] = 4;
 	
 	DG_connect(3,4,5,graph);
 	weight[3][4] = 4;
+	weight[4][3] = 4;
 	
 	DG_connect(1,4,5,graph);
 	weight[1][4] = 4;
+	weight[4][1] = 4;
 
 	cout << "DFS:\n";
 	printvector(DFS(0, graph));
@@ -63,6 +77,10 @@ int main() {
 	Djikstras(graph, 0, 5, weight);
 
 	BellmanFordAlgorithm(graph, 0, 5, weight);
+
+	Prims(graph, 0, 5, weight);
+
+	Kruskals(graph, 5, weight);
 
 	return 0;
 }
@@ -140,10 +158,10 @@ vector<int> BFS(int start, vector<int> adj[]) {
 
 	while (!Q.empty()) {
 
-		int top = Q.front();
+		int vertex = Q.front();
 		Q.pop();
 
-		for(int &neighbor: adj[top]) {
+		for(int &neighbor: adj[vertex]) {
 
 			if (visited.find(neighbor) == visited.end()) {
 				Q.push(neighbor);
@@ -169,11 +187,11 @@ vector<int> DFS(int start, vector<int> adj[]) {
 
 	while (!st.empty()) {
 
-		int top = st.top();
+		int vertex = st.top();
 		st.pop();
-		traversal.push_back(top);
+		traversal.push_back(vertex);
 
-		for (int &neighbor: adj[top]) {
+		for (int &neighbor: adj[vertex]) {
 			if(visited.find(neighbor) == visited.end()) {
 				st.push(neighbor);
 				visited.insert(neighbor);
@@ -204,14 +222,14 @@ void unweight_shortest_path(vector<int> adj[], int start, int V) {
 	distance[start] = 0;
 
 	while (!Q.empty()) {
-		int top = Q.front();
+		int vertex = Q.front();
 		Q.pop();
 
-		for (int &neighbor: adj[top]) {
+		for (int &neighbor: adj[vertex]) {
 
 			if (distance[neighbor] == -1) {
-				distance[neighbor] = distance[top] + 1;
-				path[neighbor] = top;
+				distance[neighbor] = distance[vertex] + 1;
+				path[neighbor] = vertex;
 				Q.push(neighbor);
 			}
 		}
@@ -252,6 +270,48 @@ void Djikstras(vector <int> adj[], int start, int V, vector<vector<int>> &weight
 	}
 
 	cout << "\nDJIKSTRAS ALGORITHM\n";
+	cout << "Distances:\n";
+	printvector(distance);
+	
+	cout << "Paths:\n";
+	printvector(path);
+
+	cout << "All Paths\n";
+	printpath(path, start);
+}
+
+void Prims(vector <int> adj[], int start, int V, vector<vector<int>> &weight) {
+
+	priority_queue <pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>> > pq;
+	pq.push(make_pair(0, start));
+
+	vector<int> distance(V, INT_MAX);
+	vector<bool> MST(V, false);
+	vector<int> path(V, -1);
+	path[start] = 0;
+	distance[start] = 0;
+
+	while (!pq.empty()) {
+
+		int vertex = pq.top().second;
+		pq.pop();
+
+		if (MST[vertex]) continue;
+        MST[vertex] = true;
+
+		for (int &neighbor: adj[vertex]) {
+
+			if (!MST[neighbor] && weight[vertex][neighbor] < distance[neighbor]) {
+
+				distance[neighbor] = weight[vertex][neighbor];
+				pq.push(make_pair(distance[neighbor], neighbor));
+				path[neighbor] = vertex;
+			}
+
+		}
+	}
+
+	cout << "\nPRIMS ALGORITHM\n";
 	cout << "Distances:\n";
 	printvector(distance);
 	
@@ -303,4 +363,79 @@ void BellmanFordAlgorithm(vector<int> adj[], int start, int V, vector<vector<int
 	
 	cout << "Paths:\n";
 	printvector(path);
+}
+
+struct Edge {
+	int weight;
+	int src;
+	int dest;
+
+	Edge(int _weight, int _src, int _dest) : weight(_weight), src(_src), dest(_dest) {}
+};
+
+int findroot(int x, vector<int> &parent) {
+	while (x != parent[x]) x = parent[x];
+	return x;
+}
+
+void connect(int x, int y, vector<int> &parent) {
+	parent[findroot(y,parent)] = findroot(x, parent);
+}
+
+bool isConnected(int x, int y, vector<int> &parent) {
+	return findroot(x, parent) == findroot(y, parent);
+}
+
+// wrongly done need to correct this
+void Kruskals(vector <int> adj[], int V, vector<vector<int>> &weight) {
+
+	vector<Edge> edges, ans_edges;
+	vector<int> parent(V);
+
+	for(int i = 0; i < V; i++) parent[i] = i;
+
+	// FOR ADJACENCY LIST
+	for (int vertex = 0; vertex < V; vertex++) {
+
+		for (int &neighbor: adj[vertex]) {
+
+			int distance = weight[vertex][neighbor];
+
+			edges.push_back(Edge(distance, vertex, neighbor));
+		}
+	}
+
+	// FOR ADJACENCY MATRIX
+	// for (int i = 0; i < V; i++) {
+	// 	for(int j = 0; j < V; j++) {
+
+	// 		if (weight[i][j] == 0) continue;
+
+	// 		int src = i;
+	// 		int dest = j;
+	// 		int distance = weight[i][j];
+
+	// 		if(weight[i][j]) edges.push_back(Edge(distance, src, dest));
+	// 	}
+	// }
+
+	sort(edges.begin(), edges.end(), [](const auto &x, const auto &y){
+		return x.weight < y.weight;
+	});
+
+	for (auto &edge: edges) {
+
+		if (!isConnected(edge.src, edge.dest, parent)) {
+
+			connect(edge.src, edge.dest, parent);
+			ans_edges.push_back(edge);
+		}
+	}
+
+	cout << "\nKRUSKALS ALGORITHM\n";
+	cout << "Connected components: \n";
+
+	for (auto &edge: ans_edges) {
+		cout << "distance = " << edge.weight << " src = " << edge.src << " dest = " << edge.dest << endl;
+	}
 }
