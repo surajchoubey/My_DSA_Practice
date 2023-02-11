@@ -49,6 +49,7 @@ void merge_sort (int arr[], int l, int r) {
 	if (l >= r) return;
 
 	int m = (l + r) >> 1;
+	
 	merge_sort(arr, l, m);
 	merge_sort(arr, m + 1, r);
 
