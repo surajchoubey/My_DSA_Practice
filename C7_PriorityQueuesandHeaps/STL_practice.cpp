@@ -23,15 +23,37 @@ int main() {
     cout << "Original Vector\n";
     print_vector(V.begin(), V.end());
     
-    cout << "Heapsort\n";
-    sort_heap(V.begin(), V.end());
+    cout << "Making max heap\n";
+    make_heap(V.begin(), V.end());
     print_vector(V.begin(), V.end());
     
+    cout << "Sorting max heap in ascending\n";
+    sort_heap(V.begin(), V.end()); // sorts max heap in ascending
+    print_vector(V.begin(), V.end());
+    
+    cout << "Making min heap\n";
+    make_heap(V.begin(), V.end(), greater<int>());
+    print_vector(V.begin(), V.end());
+    
+    cout << "Sorting min heap in descending\n";
+    sort_heap(V.begin(), V.end(), greater<int>()); // sorts max heap in descending
+    print_vector(V.begin(), V.end());
+    
+    
     // i can insert as many as elements into the vector
+    
+    cout << "Pushing 17 into Heap\n";
     V.push_back(17);
+    push_heap(V.begin(), V.end());
+    print_vector(V.begin(), V.end());
+    
+    cout << "Push 18 into Heap\n";
     V.push_back(18);
+    push_heap(V.begin(), V.end());
+    print_vector(V.begin(), V.end());
+    
+    cout << "Push 19 into Heap\n";
     V.push_back(19);
-    cout << "Push Heap function\n";
     push_heap(V.begin(), V.end());
     print_vector(V.begin(), V.end());
     
@@ -45,8 +67,10 @@ int main() {
     
     cout << "Min Heap test 2\n";
     make_heap(V.begin(), V.end(), compare());
-    
     print_vector(V.begin(), V.end());
+    
+    
+    cout << endl << "============== STL Practice ================" << endl;
     
     priority_queue<int, vector<int>> pq(V.begin(), V.end());
     cout << "\nMax heap pq.top() I guess = " << pq.top(); 

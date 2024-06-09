@@ -103,7 +103,7 @@ class MinHeap {
 		}
 
 		// inserts a new key 'k'
-		void insertKey(int k) {
+		void insertElement(int k) {
 
 			if(heap_size == capacity) {
 				cout << "\nOverflow: Could not insertkey";
@@ -116,6 +116,7 @@ class MinHeap {
 			harr[i] = k;
 
 			// Fix the min heap property if it is violated
+			// goes in upward direction
 			while(i != 0 && harr[parent(i)] > harr[i]) {
 				swap(&harr[i], &harr[parent(i)]);
 				i = parent(i);
@@ -127,13 +128,13 @@ class MinHeap {
 int main()
 {
 	MinHeap h(11);
-	h.insertKey(3);
-	h.insertKey(2);
+	h.insertElement(3);
+	h.insertElement(2);
 	h.deleteKey(1);
-	h.insertKey(15);
-	h.insertKey(5);
-	h.insertKey(4);
-	h.insertKey(45);
+	h.insertElement(15);
+	h.insertElement(5);
+	h.insertElement(4);
+	h.insertElement(45);
 	cout << h.extractMin() << " ";
 	cout << h.getMin() << " ";
 	h.decreaseKey(2, 1);
